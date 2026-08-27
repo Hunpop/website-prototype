@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample | User Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Clean Functional Variables --- */
+        :root {
+            --black: #111111;
+            --white: #ffffff;
+            --gray-light: #f9fafb;
+            --gray-mid: #e5e7eb;
+            --gray-dark: #6b7280;
+            --blue: #0053A0;
+            --green: #10b981;
+            --red: #ef4444;
+            --purple: #8b5cf6;
+            --header-height: 72px; 
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: var(--font); 
+            background-color: var(--gray-light); 
+            color: var(--black); 
+            line-height: 1.5; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Dashboard Layout Engine --- */
+        .dashboard-container {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--white);
+            border-right: 1px solid var(--gray-mid);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-header {
+            height: var(--header-height); 
+            min-height: var(--header-height); 
+            max-height: var(--header-height);
+            padding: 0 2rem;
+            border-bottom: 1px solid var(--gray-mid);
+            display: flex;
+            align-items: center; 
+        }
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            letter-spacing: -1px;
+            color: var(--black);
+            text-decoration: none;
+        }
+        .nav-menu {
+            padding: 1.5rem 0;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 2rem;
+            color: var(--gray-dark);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--gray-light);
+            color: var(--black);
+            border-right: 3px solid var(--black);
+        }
+        .nav-item span {
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+
+        /* --- Main Content Area --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* --- Top Bar --- */
+        .topbar {
+            height: var(--header-height); 
+            min-height: var(--header-height); 
+            max-height: var(--header-height);
+            background-color: var(--white);
+            padding: 0 3rem;
+            border-bottom: 1px solid var(--gray-mid);
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .page-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--black);
+            color: var(--white);
+            padding: 0.5rem 1.2rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-primary:hover { background-color: var(--gray-dark); }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-left: 1px solid var(--gray-mid);
+            padding-left: 1.5rem;
+        }
+        .badge {
+            background-color: var(--gray-mid);
+            color: var(--black);
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background-color: var(--black);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* --- Dashboard Content --- */
+        .content-padding {
+            padding: 2.5rem 3rem;
+            overflow-y: auto;
+        }
+
+        /* --- Analytics Grid --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .stat-card {
+            background-color: var(--white);
+            border: 1px solid var(--gray-mid);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .stat-card h4 {
+            font-size: 0.8rem;
+            color: var(--gray-dark);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 0.25rem;
+        }
+        .stat-card .trend {
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        /* --- Data Tables --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        .section-header h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+        .btn-outline {
+            border: 1px solid var(--gray-mid);
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .btn-outline:hover {
+            border-color: var(--black);
+        }
+
+        .table-container {
+            background: var(--white);
+            border: 1px solid var(--gray-mid);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th {
+            background-color: var(--gray-light);
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-dark);
+            border-bottom: 1px solid var(--gray-mid);
+        }
+        td {
+            padding: 1.2rem 1.5rem;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--gray-mid);
+            color: var(--black);
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        tr:hover {
+            background-color: var(--gray-light);
+        }
+
+        /* Status Indicators */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+        .status::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .status.open::before { background-color: var(--purple); }
+        .status.review::before { background-color: #f59e0b; }
+        .status.production::before { background-color: var(--blue); }
+        .status.shipped::before { background-color: var(--green); }
+        
+        .action-link {
+            color: var(--blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .action-link:hover {
+            text-decoration: underline;
+        }
+        
+        .highlight-text {
+            color: var(--purple);
+            font-weight: 600;
+        }
+/* --- Minimal Dashboard Footer --- */
+        .dashboard-footer {
+            text-align: center;
+            padding-top: 1.5rem;
+            font-size: 0.75rem;
+            color: var(--gray-dark);
+            border-top: 1px solid var(--gray-mid);
+            margin-top: 4rem; /* Changed from 'auto' to push it below the last table */
+        }
+        .dashboard-footer a {
+            color: var(--gray-dark);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+        .dashboard-footer a:hover { color: var(--blue); text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="logo">Sample</a>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active"><span></span> Overview</a>
+                <a href="#" class="nav-item"><span></span> My Requests (RFQs)</a>
+                <a href="#" class="nav-item"><span></span> Active Orders</a>
+                <a href="#" class="nav-item"><span></span> Saved Suppliers</a>
+                <a href="#" class="nav-item"><span></span> Settings</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="topbar">
+                <div class="page-title">User Profile</div>
+                
+                <div class="topbar-actions">
+                    <a href="#" class="btn-primary">+ Create New Request (RFQ)</a>
+                    
+                    <div class="user-profile">
+                        <span class="badge"> Buyer </span>
+                        <div class="avatar">AB</div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-padding">
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Active Requests (RFQs)</h4>
+                        <div class="value">3</div>
+                        <div class="trend" style="color: var(--gray-dark);">Awaiting supplier quotes</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Orders in Production</h4>
+                        <div class="value">5</div>
+                        <div class="trend" style="color: var(--blue);">Track progress below</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Total Spend (MTD)</h4>
+                        <div class="value">$28,450</div>
+                        <div class="trend" style="color: var(--gray-dark);">Across 4 verified workshops</div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2>My Active Requests (Seeking Quotes)</h2>
+                    <button class="btn-outline">View All Requests</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Requested Component</th>
+                                <th>Category</th>
+                                <th>Quotes Received</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Product Alpha - V2</strong><br><span style="color: var(--gray-dark); font-size: 0.8rem;">Target Qty: 50 units | Budget: ~$2.5k</span></td>
+                                <td>Service D</td>
+                                <td><span class="highlight-text">4 New Quotes</span></td>
+                                <td><span class="status review">Reviewing Bids</span></td>
+                                <td><a href="#" class="action-link">Compare Bids</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Component Beta</strong><br><span style="color: var(--gray-dark); font-size: 0.8rem;">Target Qty: 100 units | Open Budget</span></td>
+                                <td>Service C</td>
+                                <td>0 Quotes</td>
+                                <td><span class="status open">Accepting Bids</span></td>
+                                <td><a href="#" class="action-link" style="color: var(--gray-dark);">Edit Request</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="section-header">
+                    <h2>Current Orders (Contracts Awarded)</h2>
+                    <button class="btn-outline">Order History</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Component Order</th>
+                                <th>Assigned Supplier</th>
+                                <th>Cost</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Component Beta Array</strong><br><span style="color: var(--gray-dark); font-size: 0.8rem;">Qty: 200 units | Est. Delivery: Oct 15</span></td>
+                                <td>Supplier Corp LLC</td>
+                                <td>$890.00</td>
+                                <td><span class="status production">In Production</span></td>
+                                <td><a href="#" class="action-link">View Status</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Standard Printing Service (Batch A)</strong><br><span style="color: var(--gray-dark); font-size: 0.8rem;">Qty: 500 units | Est. Delivery: Oct 12</span></td>
+                                <td>Tech Labs LLC</td>
+                                <td>$450.00</td>
+                                <td><span class="status shipped">Shipped</span></td>
+                                <td><a href="#" class="action-link">Track Delivery</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+<footer class="dashboard-footer">
+                &copy; 2026 Sample B2B Marketplace. All rights reserved. 
+                <a href="#">Terms</a> &middot; <a href="#">Privacy</a>
+            </footer>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

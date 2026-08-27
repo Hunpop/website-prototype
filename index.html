@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample | B2B Marketplace</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #000000;
+            --white: #ffffff;
+            --gray-light: #f5f5f5;
+            --gray-mid: #e0e0e0;
+            --gray-dark: #757575;
+            --blue: #0053A0; 
+            
+            --sticky-header-height: 80px;
+            --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: var(--font-body); 
+            background-color: var(--white); 
+            color: var(--black); 
+            line-height: 1.4; 
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        #side-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 350px;
+            height: 100vh;
+            background-color: var(--white);
+            z-index: 9999;
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+        }
+        #side-menu.open {
+            transform: translateX(0);
+        }
+        .close-btn {
+            align-self: flex-end;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--black);
+            line-height: 1;
+            margin-bottom: 3rem;
+        }
+        .side-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .side-nav-links a {
+            text-decoration: none;
+            color: var(--black);
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: color 0.2s;
+        }
+        .side-nav-links a:hover { color: var(--blue); }
+
+        #menu-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9998;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        #menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--black);
+            overflow: hidden;
+        }
+        #hero-video {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw; 
+            height: 100vh;
+            z-index: 1;
+            object-fit: cover;
+            object-position: center;
+        }
+        .video-overlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.4); 
+            z-index: 2;
+        }
+        .hero-nav {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 2.5rem 4rem;
+            display: flex;
+            justify-content: flex-end; 
+            align-items: center;
+            z-index: 10;
+        }
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .nav-link-text {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-family: var(--font-body);
+            transition: opacity 0.2s;
+        }
+        .nav-link-text:hover { opacity: 0.6; }
+        .separator {
+            width: 1px;
+            height: 14px;
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .center-container {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-center-logo {
+            font-size: 8rem; 
+            font-weight: 700;
+            letter-spacing: -4px;
+            color: var(--white);
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .hero-center-logo.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+        }
+
+        .center-search-wrapper {
+            position: absolute;
+            width: 90%;
+            max-width: 850px; 
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .center-search-wrapper.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .hero-search-box {
+            display: flex;
+            width: 100%;
+            height: 60px; 
+            background-color: var(--white);
+            border-radius: 0; 
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        .hero-search-box input {
+            flex: 1;
+            padding: 0 2rem;
+            border: none;
+            background: transparent;
+            font-size: 1.1rem;
+            color: var(--black);
+            outline: none;
+            font-family: var(--font-body);
+        }
+        .hero-search-box input::placeholder { color: var(--gray-dark); }
+        .hero-search-box button {
+            padding: 0 3rem;
+            background-color: var(--black);
+            color: var(--white);
+            border: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: background-color 0.2s;
+        }
+        .hero-search-box button:hover { background-color: var(--blue); }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem; left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--white);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+        .scroll-arrow {
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        main { padding-top: var(--sticky-header-height); }
+
+        #sticky-header {
+            position: fixed;
+            top: -var(--sticky-header-height); 
+            left: 0;
+            width: 100%;
+            height: var(--sticky-header-height);
+            background-color: var(--white);
+            padding: 0 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray-mid);
+            z-index: 1000;
+            transition: top 0.3s ease-in-out; 
+        }
+        #sticky-header.visible { top: 0; }
+
+        #sticky-header .logo {
+            color: var(--black);
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: -1px;
+        }
+
+        .sticky-search-box {
+            flex: 1;
+            max-width: 600px; 
+            display: flex;
+            height: 42px;
+            margin: 0 2rem;
+            background-color: var(--white);
+            border: 2px solid var(--black); 
+            border-radius: 0; 
+            overflow: hidden;
+        }
+        .sticky-search-box input {
+            flex: 1;
+            padding: 0 1.5rem;
+            border: none;
+            background: transparent;
+            color: var(--black);
+            font-size: 0.9rem;
+            outline: none;
+            font-family: var(--font-body);
+        }
+        .sticky-search-box input::placeholder { color: var(--gray-dark); }
+        .sticky-search-box button {
+            padding: 0 1.5rem;
+            background-color: var(--black);
+            color: var(--white);
+            border: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s;
+        }
+        .sticky-search-box button:hover { background-color: var(--blue); }
+
+        .sticky-nav {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+        .sticky-nav a {
+            text-decoration: none;
+            color: var(--black);
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .btn-login { 
+            background-color: var(--black); 
+            color: var(--white) !important; 
+            padding: 0.5rem 1rem; 
+            border-radius: 0; 
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.4;
+        }
+        .btn-login:hover { opacity: 0.8; }
+
+        .carousel-section { padding: 4rem 0; background-color: var(--white); }
+        .carousel-container { max-width: 1100px; margin: 0 auto; position: relative; padding: 0 4rem; }
+        
+        .carousel-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 44px; height: 44px; background-color: var(--white);
+            border: 1px solid var(--gray-mid); border-radius: 0; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            font-size: 1.2rem; font-weight: bold; color: var(--black);
+            transition: all 0.2s; z-index: 10; user-select: none;
+        }
+        .carousel-arrow:hover { border-color: var(--black); background-color: var(--gray-light); }
+        .carousel-arrow.prev { left: 0; }
+        .carousel-arrow.next { right: 0; }
+
+        .carousel-slides { position: relative; }
+        .featured-card {
+            display: none; align-items: center; background-color: var(--gray-light);
+            border: 1px solid var(--gray-mid); border-radius: 0; 
+            overflow: hidden; text-decoration: none; color: var(--black);
+            transition: transform 0.2s, box-shadow 0.2s; animation: fadeIn 0.4s ease-in-out;
+        }
+        .featured-card.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .featured-card:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1); }
+        
+        .featured-image { width: 50%; height: 320px; background-color: #eee; }
+        .featured-image img { width: 100%; height: 100%; object-fit: cover; }
+        .featured-info { width: 50%; padding: 3rem; }
+        .featured-label { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gray-dark); letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .featured-info h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .featured-info p { color: var(--gray-dark); margin-bottom: 1.5rem; font-size: 0.9rem; }
+        .btn-order { display: inline-block; background-color: var(--blue); color: var(--white); padding: 0.8rem 1.5rem; border-radius: 0; font-weight: 600; font-size: 0.9rem; }
+
+        .categories { padding: 0 2rem 6rem 2rem; max-width: 1200px; margin: 0 auto; }
+        .section-title { text-align: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 3rem; letter-spacing: -0.5px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .card {
+            background: var(--white); border: 1px solid var(--gray-mid); border-radius: 0; 
+            text-align: center; cursor: pointer; transition: all 0.2s ease;
+            text-decoration: none; color: var(--black); display: flex; flex-direction: column; overflow: hidden; 
+        }
+        .card:hover { border-color: var(--black); transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .card-image { width: 100%; height: 180px; background-color: #eee; }
+        .card-image img { width: 100%; height: 100%; object-fit: cover; }
+        .card h3 { font-weight: 600; font-size: 1.1rem; padding: 1.5rem 1rem; }
+
+        footer { background-color: var(--black); color: var(--white); padding: 4rem 3rem 2rem 3rem; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 3rem; }
+        .footer-column h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 1.2rem; color: var(--white); }
+        .footer-column a { display: block; color: var(--gray-dark); text-decoration: none; font-size: 0.85rem; margin-bottom: 0.8rem; }
+        .footer-column a:hover { color: var(--white); text-decoration: underline; }
+        .footer-bottom { max-width: 1200px; margin: 0 auto; border-top: 1px solid #333; padding-top: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--gray-dark); }
+    </style>
+</head>
+<body>
+
+    <div id="menu-overlay" onclick="toggleMenu(event)"></div>
+    <div id="side-menu">
+        <button class="close-btn" onclick="toggleMenu(event)">&times;</button>
+        <nav class="side-nav-links">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--gray-dark); letter-spacing: 1px;">Prototype Navigation</span>
+            <a href="index.html">Homepage</a>
+            <a href="product.html">Example Product</a>
+            <hr style="border: 0; height: 1px; background: var(--gray-mid); margin: 0.5rem 0;">
+            <a href="demand.html">Buyer Dashboard</a>
+            <a href="supplier.html">Supplier Dashboard</a>
+        </nav>
+    </div>
+
+    <div id="hero">
+        <video autoplay muted loop id="hero-video">
+            <source src="hero-video.mp4" type="video/mp4">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-futuristic-urban-cityscape-and-traffic-at-night-42171-large.mp4" type="video/mp4">
+        </video>
+        
+        <div class="video-overlay"></div>
+
+        <nav class="hero-nav">
+            <div class="nav-actions">
+                <button class="nav-link-text" onclick="toggleMenu(event)">Menu</button>
+                <div class="separator"></div>
+                <button class="nav-link-text" onclick="toggleHeroSearch(event)">Search</button>
+                <div class="separator"></div>
+                <a href="supplier.html" class="nav-link-text">Login</a>
+            </div>
+        </nav>
+
+        <div class="center-container">
+            <div class="hero-center-logo" id="hero-logo">
+                Sample
+            </div>
+            
+            <div class="center-search-wrapper" id="hero-search-bar">
+                <div class="hero-search-box">
+                    <input type="text" placeholder="Search for products, materials, or suppliers...">
+                    <button>Search</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" onclick="window.scrollTo({top: window.innerHeight, behavior: 'smooth'})">
+            <span>Scroll to explore</span>
+            <div class="scroll-arrow">↓</div>
+        </div>
+    </div>
+
+    <main>
+        
+        <header id="sticky-header">
+            <a href="index.html" class="logo">Sample</a>
+            
+            <div class="sticky-search-box">
+                <input type="text" placeholder="Search for products, materials, or suppliers...">
+                <button>Search</button>
+            </div>
+
+            <nav class="sticky-nav">
+                <a href="product.html">Marketplace</a>
+                <a href="supplier.html" class="btn-login">Login</a>
+            </nav>
+        </header>
+
+        <section class="carousel-section">
+            <div class="carousel-container">
+                <div class="carousel-arrow prev" onclick="toggleSlide()">&#8249;</div>
+                <div class="carousel-arrow next" onclick="toggleSlide()">&#8250;</div>
+
+                <div class="carousel-slides">
+                    <a href="product.html" class="featured-card active" id="slide-1">
+                        <div class="featured-image">
+                            <img src="featured-drone.jpg" alt="Featured Product Alpha" onerror="this.src='https://placehold.co/800x450/e2e8f0/64748b?text=Product+Shot'">
+                        </div>
+                        <div class="featured-info">
+                            <div class="featured-label">Sponsored Component</div>
+                            <h2>Industrial Drone Frame</h2>
+                            <p>High-quality composite chassis. Ready for immediate deployment and component integration.</p>
+                            <span class="btn-order">View Details</span>
+                        </div>
+                    </a>
+
+                    <a href="product.html" class="featured-card" id="slide-2">
+                        <div class="featured-image">
+                            <img src="featured-sensor.jpg" alt="Advanced Optical Sensor" onerror="this.src='https://placehold.co/800x450/e2e8f0/64748b?text=Optical+Sensor'">
+                        </div>
+                        <div class="featured-info">
+                            <div class="featured-label">Featured Capability</div>
+                            <h2>Advanced Optical Sensor</h2>
+                            <p>Intelligent data acquisition module. Precision-engineered for industrial applications with custom processing architecture.</p>
+                            <span class="btn-order">Request Quote</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="categories">
+            <h2 class="section-title">Browse Capabilities</h2>
+            <div class="grid">
+                <a href="product.html" class="card">
+                    <div class="card-image"><img src="category-3dprint.jpg" alt="Service A" onerror="this.src='https://placehold.co/600x450/e2e8f0/64748b?text=Service+A'"></div>
+                    <h3>Service A</h3>
+                </a>
+                <a href="product.html" class="card">
+                    <div class="card-image"><img src="category-cnc.jpg" alt="Service B" onerror="this.src='https://placehold.co/600x450/e2e8f0/64748b?text=Service+B'"></div>
+                    <h3>Service B</h3>
+                </a>
+                <a href="product.html" class="card">
+                    <div class="card-image"><img src="category-electronics.jpg" alt="Service C" onerror="this.src='https://placehold.co/600x450/e2e8f0/64748b?text=Service+C'"></div>
+                    <h3>Service C</h3>
+                </a>
+                <a href="product.html" class="card">
+                    <div class="card-image"><img src="category-carbon.jpg" alt="Service D" onerror="this.src='https://placehold.co/600x450/e2e8f0/64748b?text=Service+D'"></div>
+                    <h3>Service D</h3>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h4>About Sample</h4>
+                <a href="#">Company Information</a>
+                <a href="#">News & Press</a>
+            </div>
+            <div class="footer-column">
+                <h4>Legal & Privacy</h4>
+                <a href="#">Terms of Service</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="footer-column">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Site Map</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Sample B2B Marketplace. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Menu Toggle Logic ---
+        const sideMenu = document.getElementById('side-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        function toggleMenu(event) {
+            if(event) event.stopPropagation();
+            sideMenu.classList.toggle('open');
+            menuOverlay.classList.toggle('open');
+            if(sideMenu.classList.contains('open') && searchBar.classList.contains('visible')) {
+                toggleHeroSearch();
+            }
+        }
+
+        // --- 2. Center Search Reveal & "Click Away" Logic ---
+        const heroLogo = document.getElementById('hero-logo');
+        const searchBar = document.getElementById('hero-search-bar');
+        const searchInput = searchBar.querySelector('input');
+
+        function toggleHeroSearch(event) {
+            if(event) event.stopPropagation();
+            heroLogo.classList.toggle('hidden');
+            searchBar.classList.toggle('visible');
+            if (searchBar.classList.contains('visible')) {
+                setTimeout(() => searchInput.focus(), 300);
+            }
+        }
+
+        document.addEventListener('click', function(event) {
+            if (searchBar.classList.contains('visible') && !searchBar.contains(event.target)) {
+                toggleHeroSearch();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape" && searchBar.classList.contains('visible')) {
+                toggleHeroSearch();
+            }
+        });
+
+        // --- 3. Scroll & Sticky Header Logic ---
+        const hero = document.getElementById('hero');
+        const main = document.querySelector('main');
+        const stickyHeader = document.getElementById('sticky-header');
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const heroHeight = hero.offsetHeight;
+
+            if (scrollY > heroHeight - 50) { 
+                hero.style.opacity = '0';
+                hero.style.pointerEvents = 'none';
+                main.style.display = 'block';
+                stickyHeader.classList.add('visible');
+            } else {
+                hero.style.opacity = '1';
+                hero.style.pointerEvents = 'auto';
+                main.style.display = 'block';
+                stickyHeader.classList.remove('visible');
+                
+                if (searchBar.classList.contains('visible')) {
+                    toggleHeroSearch();
+                }
+            }
+        });
+
+        // --- 4. Carousel Logic ---
+        function toggleSlide() {
+            const slide1 = document.getElementById('slide-1');
+            const slide2 = document.getElementById('slide-2');
+            
+            if (slide1.classList.contains('active')) {
+                slide1.classList.remove('active');
+                slide2.classList.add('active');
+            } else {
+                slide2.classList.remove('active');
+                slide1.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>
